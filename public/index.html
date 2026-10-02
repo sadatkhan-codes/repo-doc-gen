@@ -663,11 +663,27 @@
           return;
         }
 
-        if (!repoUrl.includes("github.com/")) {
-          showError("Please enter a valid GitHub repository URL.");
+        try {
+          const url = new URL(repoUrl);
+
+          if (
+            url.hostname !== "github.com" &&
+            url.hostname !== "www.github.com"
+          ) {
+            throw new Error();
+          }
+
+          const parts = url.pathname.split("/").filter(Boolean);
+
+          if (parts.length < 2) {
+            throw new Error();
+          }
+        } catch {
+          showError(
+            "Please enter a valid GitHub repository URL, such as https://github.com/facebook/react",
+          );
 
           repoUrlInput.focus();
-
           return;
         }
 
