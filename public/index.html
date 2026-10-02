@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>RepoDoc AI — README Generator</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Sanitize HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+
+    <!-- Mermaid -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+
+    <style>
+      body {
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      /* ==================================================
+         MARKDOWN STYLING
+      ================================================== */
+
+      .markdown-body {
+        color: #334155;
+        line-height: 1.7;
+      }
+
+      .markdown-body h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-top: 1.5rem;
+        margin-bottom: 1rem;
+        line-height: 1.25;
+      }
+
+      .markdown-body h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 2rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 0.4rem;
+      }
+
+      .markdown-body h3 {
+        font-size: 1.2rem;
+        font-weight: 650;
+        color: #1e293b;
+        margin-top: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .markdown-body h4 {
+        font-size: 1rem;
+        font-weight: 650;
+        color: #1e293b;
+        margin-top: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .markdown-body p {
+        margin-top: 0.7rem;
+        margin-bottom: 0.7rem;
+      }
+
+      .markdown-body ul {
+        list-style-type: disc;
+        margin-left: 1.5rem;
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .markdown-body ol {
+        list-style-type: decimal;
+        margin-left: 1.5rem;
+        margin-top: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .markdown-body li {
+        margin-bottom: 0.4rem;
+      }
+
+      .markdown-body li > ul,
+      .markdown-body li > ol {
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .markdown-body a {
+        color: #2563eb;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .markdown-body blockquote {
+        border-left: 4px solid #cbd5e1;
+        padding-left: 1rem;
+        margin: 1rem 0;
+        color: #64748b;
+      }
+
+      .markdown-body code {
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 0.15rem 0.35rem;
+        border-radius: 0.35rem;
+        font-size: 0.9em;
+      }
+
+      .markdown-body pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        overflow-x: auto;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .markdown-body pre code {
+        background: transparent;
+        color: inherit;
+        padding: 0;
+      }
+
+      .markdown-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.25rem 0;
+        display: block;
+        overflow-x: auto;
+      }
+
+      .markdown-body th,
+      .markdown-body td {
+        border: 1px solid #e2e8f0;
+        padding: 0.65rem 0.8rem;
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      .markdown-body th {
+        background: #f8fafc;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .markdown-body hr {
+        border: 0;
+        border-top: 1px solid #e2e8f0;
+        margin: 1.5rem 0;
+      }
+
+      /* ==================================================
+         CUSTOM ANIMATIONS
+      ================================================== */
+
+      .fade-in {
+        animation: fadeIn 0.35s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .pulse-dot {
+        animation: pulseDot 1.5s infinite;
+      }
+
+      @keyframes pulseDot {
+        0%,
+        100% {
+          opacity: 0.35;
+        }
+
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* ==================================================
+         MERMAID
+      ================================================== */
+
+      #architecture svg {
+        max-width: 100%;
+        height: auto;
+      }
+
+      /* ==================================================
+         SCROLLBAR
+      ================================================== */
+
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f8fafc;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 999px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+    </style>
+  </head>
+
+  <body class="bg-slate-50 text-slate-900 min-h-screen">
+    <!-- ==================================================
+         HEADER
+    ================================================== -->
+
+    <header class="border-b border-slate-200 bg-white">
+      <div
+        class="max-w-7xl mx-auto px-5 sm:px-6 py-5 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold"
+          >
+            R
+          </div>
+
+          <div>
+            <h1 class="font-bold text-lg sm:text-xl">RepoDoc AI</h1>
+
+            <p class="text-xs sm:text-sm text-slate-500">
+              Automated GitHub documentation generator
+            </p>
+          </div>
+        </div>
+
+        <div class="hidden sm:flex items-center gap-2 text-sm text-slate-500">
+          <span class="w-2 h-2 rounded-full bg-green-500"></span>
+
+          GitHub → AI → Documentation
+        </div>
+      </div>
+    </header>
+
+    <!-- ==================================================
+         MAIN
+    ================================================== -->
+
+    <main class="max-w-7xl mx-auto px-5 sm:px-6 py-8 sm:py-12">
+      <!-- ==================================================
+           HERO
+      ================================================== -->
+
+      <section class="text-center max-w-3xl mx-auto">
+        <div
+          class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-4 py-2 text-sm text-slate-600 shadow-sm"
+        >
+          <span class="pulse-dot">✦</span>
+          AI-powered repository documentation
+        </div>
+
+        <h2
+          class="text-4xl sm:text-5xl font-extrabold tracking-tight mt-6 text-slate-950"
+        >
+          Turn any GitHub repository into
+          <span class="text-slate-500"> professional documentation. </span>
+        </h2>
+
+        <p class="text-slate-500 text-base sm:text-lg mt-5 leading-7">
+          Analyze the repository structure, source files and configuration
+          automatically, then generate a README and architecture diagram.
+        </p>
+      </section>
+
+      <!-- ==================================================
+           INPUT CARD
+      ================================================== -->
+
+      <section
+        class="max-w-4xl mx-auto mt-8 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6"
+      >
+        <label
+          for="repoUrl"
+          class="block text-sm font-semibold text-slate-700 mb-2"
+        >
+          GitHub repository URL
+        </label>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input
+            id="repoUrl"
+            type="url"
+            autocomplete="off"
+            placeholder="https://github.com/facebook/react"
+            class="flex-1 min-w-0 border border-slate-300 rounded-xl px-4 py-3.5 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+          />
+
+          <button
+            id="generateBtn"
+            type="button"
+            class="bg-slate-900 hover:bg-slate-800 text-white px-7 py-3.5 rounded-xl font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Generate Docs
+          </button>
+        </div>
+
+        <p class="text-xs text-slate-400 mt-3">
+          Example: https://github.com/facebook/react
+        </p>
+
+        <!-- Loading -->
+
+        <div
+          id="loading"
+          class="hidden mt-5 border border-slate-200 bg-slate-50 rounded-xl p-4"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-5 h-5 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin"
+            ></div>
+
+            <div>
+              <p id="loadingText" class="text-sm font-medium text-slate-700">
+                Connecting to GitHub...
+              </p>
+
+              <p class="text-xs text-slate-400 mt-0.5">
+                This may take a few seconds.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Error -->
+
+        <div
+          id="errorBox"
+          class="hidden mt-5 bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 text-sm"
+        ></div>
+      </section>
+
+      <!-- ==================================================
+           RESULTS
+      ================================================== -->
+
+      <section id="results" class="hidden mt-10 space-y-6 fade-in">
+        <!-- ==================================================
+             REPOSITORY SUMMARY
+        ================================================== -->
+
+        <div
+          class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"
+        >
+          <div class="p-5 sm:p-6 border-b border-slate-200">
+            <div
+              class="flex flex-col md:flex-row md:items-start md:justify-between gap-5"
+            >
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                  <span
+                    class="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full"
+                  >
+                    Repository
+                  </span>
+
+                  <span
+                    id="repoBranch"
+                    class="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full"
+                  >
+                    -
+                  </span>
+                </div>
+
+                <h2
+                  id="repoName"
+                  class="text-2xl sm:text-3xl font-bold text-slate-950 break-words"
+                >
+                  Repository
+                </h2>
+
+                <p id="repoFullName" class="text-sm text-slate-400 mt-1"></p>
+
+                <p
+                  id="repoDescription"
+                  class="text-slate-500 mt-3 leading-6 max-w-3xl"
+                ></p>
+              </div>
+
+              <a
+                id="githubLink"
+                href="#"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="shrink-0 inline-flex items-center justify-center border border-slate-300 px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-50 transition"
+              >
+                View on GitHub ↗
+              </a>
+            </div>
+          </div>
+
+          <!-- Statistics -->
+
+          <div
+            class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 divide-x divide-y lg:divide-y-0 divide-slate-200"
+          >
+            <div class="p-4 sm:p-5">
+              <p class="text-xs text-slate-400">Language</p>
+
+              <p
+                id="repoLanguage"
+                class="font-semibold text-slate-800 mt-1 truncate"
+              >
+                -
+              </p>
+            </div>
+
+            <div class="p-4 sm:p-5">
+              <p class="text-xs text-slate-400">Stars</p>
+
+              <p id="repoStars" class="font-semibold text-slate-800 mt-1">-</p>
+            </div>
+
+            <div class="p-4 sm:p-5">
+              <p class="text-xs text-slate-400">Forks</p>
+
+              <p id="repoForks" class="font-semibold text-slate-800 mt-1">-</p>
+            </div>
+
+            <div class="p-4 sm:p-5">
+              <p class="text-xs text-slate-400">Files</p>
+
+              <p id="repoFiles" class="font-semibold text-slate-800 mt-1">-</p>
+            </div>
+
+            <div class="p-4 sm:p-5">
+              <p class="text-xs text-slate-400">Folders</p>
+
+              <p id="repoFolders" class="font-semibold text-slate-800 mt-1">
+                -
+              </p>
+            </div>
+
+            <div class="p-4 sm:p-5">
+              <p class="text-xs text-slate-400">Important files</p>
+
+              <p id="importantFiles" class="font-semibold text-slate-800 mt-1">
+                -
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================================================
+             AI SUMMARY
+        ================================================== -->
+
+        <div
+          class="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 sm:p-6"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-9 h-9 rounded-lg bg-slate-900 text-white flex items-center justify-center text-sm"
+            >
+              AI
+            </div>
+
+            <div>
+              <h2 class="text-lg font-bold">AI Project Summary</h2>
+
+              <p class="text-xs text-slate-400">
+                Generated from the repository analysis
+              </p>
+            </div>
+          </div>
+
+          <p id="summary" class="text-slate-600 leading-7 mt-5"></p>
+        </div>
+
+        <!-- ==================================================
+             README
+        ================================================== -->
+
+        <div
+          class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"
+        >
+          <div
+            class="px-5 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          >
+            <div>
+              <h2 class="text-lg font-bold">Generated README</h2>
+
+              <p class="text-sm text-slate-400 mt-1">
+                Ready to copy into your repository.
+              </p>
+            </div>
+
+            <div class="flex gap-2">
+              <button
+                id="copyReadmeBtn"
+                type="button"
+                class="border border-slate-300 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 transition"
+              >
+                Copy
+              </button>
+
+              <button
+                id="downloadReadmeBtn"
+                type="button"
+                class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-800 transition"
+              >
+                Download README
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="readme"
+            class="markdown-body p-5 sm:p-8 max-w-none overflow-x-auto"
+          ></div>
+        </div>
+
+        <!-- ==================================================
+             ARCHITECTURE
+        ================================================== -->
+
+        <div
+          class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden"
+        >
+          <div
+            class="px-5 sm:px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          >
+            <div>
+              <h2 class="text-lg font-bold">Architecture</h2>
+
+              <p class="text-sm text-slate-400 mt-1">
+                AI-generated Mermaid system architecture.
+              </p>
+            </div>
+
+            <button
+              id="copyArchitectureBtn"
+              type="button"
+              class="border border-slate-300 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-50 transition"
+            >
+              Copy Mermaid
+            </button>
+          </div>
+
+          <div
+            id="architecture"
+            class="p-5 sm:p-8 min-h-64 overflow-x-auto flex justify-center items-center"
+          ></div>
+        </div>
+
+        <!-- ==================================================
+             FOOTER RESULT NOTE
+        ================================================== -->
+
+        <div class="text-center text-xs text-slate-400 py-3">
+          Documentation generated from the analyzed repository. Always review
+          AI-generated documentation before publishing.
+        </div>
+      </section>
+    </main>
+
+    <!-- ==================================================
+         JAVASCRIPT
+    ================================================== -->
+
+    <script>
+      // ==================================================
+      // INITIALIZE MERMAID
+      // ==================================================
+
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: "default",
+      });
+
+      // ==================================================
+      // ELEMENTS
+      // ==================================================
+
+      const generateBtn = document.getElementById("generateBtn");
+
+      const repoUrlInput = document.getElementById("repoUrl");
+
+      const loading = document.getElementById("loading");
+
+      const loadingText = document.getElementById("loadingText");
+
+      const errorBox = document.getElementById("errorBox");
+
+      const results = document.getElementById("results");
+
+      // ==================================================
+      // GENERATED DATA
+      // ==================================================
+
+      let generatedReadme = "";
+
+      let generatedArchitecture = "";
+
+      // ==================================================
+      // BUTTON EVENTS
+      // ==================================================
+
+      generateBtn.addEventListener("click", generateDocumentation);
+
+      repoUrlInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          generateDocumentation();
+        }
+      });
+
+      // ==================================================
+      // GENERATE DOCUMENTATION
+      // ==================================================
+
+      async function generateDocumentation() {
+        const repoUrl = repoUrlInput.value.trim();
+
+        // Clear previous error
+        errorBox.classList.add("hidden");
+        errorBox.innerText = "";
+
+        // Validate URL
+        if (!repoUrl) {
+          showError("Please enter a GitHub repository URL.");
+
+          repoUrlInput.focus();
+
+          return;
+        }
+
+        if (!repoUrl.includes("github.com/")) {
+          showError("Please enter a valid GitHub repository URL.");
+
+          repoUrlInput.focus();
+
+          return;
+        }
+
+        // Disable button
+        generateBtn.disabled = true;
+
+        generateBtn.classList.add("opacity-60", "cursor-not-allowed");
+
+        // Show loading
+        loading.classList.remove("hidden");
+
+        loadingText.innerText = "Connecting to GitHub...";
+
+        // Hide previous results
+        results.classList.add("hidden");
+
+        try {
+          loadingText.innerText = "Analyzing repository structure...";
+
+          const response = await fetch("/api/generate", {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              repoUrl: repoUrl,
+            }),
+          });
+
+          let data;
+
+          try {
+            data = await response.json();
+          } catch {
+            throw new Error("The server returned an invalid response.");
+          }
+
+          if (!response.ok) {
+            throw new Error(
+              data.error ||
+                "Something went wrong while generating documentation.",
+            );
+          }
+
+          loadingText.innerText = "Rendering documentation...";
+
+          await displayResults(data);
+        } catch (error) {
+          console.error(error);
+
+          showError(error.message || "Could not generate documentation.");
+        } finally {
+          loading.classList.add("hidden");
+
+          generateBtn.disabled = false;
+
+          generateBtn.classList.remove("opacity-60", "cursor-not-allowed");
+        }
+      }
+
+      // ==================================================
+      // DISPLAY RESULTS
+      // ==================================================
+
+      async function displayResults(data) {
+        const repository = data.repository || {};
+
+        const analysis = data.analysis || {};
+
+        const generated = data.generated || {};
+
+        // --------------------------------------------------
+        // SAVE GENERATED DATA
+        // --------------------------------------------------
+
+        generatedReadme = generated.readme || "";
+
+        generatedArchitecture = generated.architecture || "";
+
+        // --------------------------------------------------
+        // REPOSITORY INFORMATION
+        // --------------------------------------------------
+
+        document.getElementById("repoName").innerText =
+          repository.name || "Unknown repository";
+
+        document.getElementById("repoFullName").innerText =
+          repository.fullName || "";
+
+        document.getElementById("repoDescription").innerText =
+          repository.description || "No description available.";
+
+        document.getElementById("repoLanguage").innerText =
+          repository.language || "Not specified";
+
+        document.getElementById("repoStars").innerText = Number(
+          repository.stars || 0,
+        ).toLocaleString();
+
+        document.getElementById("repoForks").innerText = Number(
+          repository.forks || 0,
+        ).toLocaleString();
+
+        document.getElementById("repoFiles").innerText = Number(
+          analysis.structure?.files || 0,
+        ).toLocaleString();
+
+        document.getElementById("repoFolders").innerText = Number(
+          analysis.structure?.folders || 0,
+        ).toLocaleString();
+
+        document.getElementById("importantFiles").innerText = Number(
+          analysis.structure?.importantFiles?.length || 0,
+        ).toLocaleString();
+
+        document.getElementById("repoBranch").innerText =
+          repository.defaultBranch
+            ? `Branch: ${repository.defaultBranch}`
+            : "Branch unavailable";
+
+        // --------------------------------------------------
+        // GITHUB LINK
+        // --------------------------------------------------
+
+        const githubLink = document.getElementById("githubLink");
+
+        if (repository.url) {
+          githubLink.href = repository.url;
+        } else if (repository.fullName) {
+          githubLink.href = `https://github.com/${repository.fullName}`;
+        } else {
+          githubLink.href = "#";
+        }
+
+        // --------------------------------------------------
+        // SUMMARY
+        // --------------------------------------------------
+
+        document.getElementById("summary").innerText =
+          generated.summary || "No project summary was generated.";
+
+        // --------------------------------------------------
+        // README
+        // --------------------------------------------------
+
+        const readmeContainer = document.getElementById("readme");
+
+        if (generatedReadme) {
+          const renderedMarkdown = marked.parse(generatedReadme);
+
+          readmeContainer.innerHTML = DOMPurify.sanitize(renderedMarkdown);
+        } else {
+          readmeContainer.innerHTML = `
+            <p class="text-slate-400">
+              No README was generated.
+            </p>
+          `;
+        }
+
+        // --------------------------------------------------
+        // MERMAID ARCHITECTURE
+        // --------------------------------------------------
+
+        const architectureContainer = document.getElementById("architecture");
+
+        architectureContainer.innerHTML = "";
+
+        if (generatedArchitecture) {
+          try {
+            const diagramId = "architecture-" + Date.now();
+
+            const mermaidResult = await mermaid.render(
+              diagramId,
+              cleanMermaidCode(generatedArchitecture),
+            );
+
+            architectureContainer.innerHTML = mermaidResult.svg;
+
+            if (mermaidResult.bindFunctions) {
+              mermaidResult.bindFunctions(architectureContainer);
+            }
+          } catch (error) {
+            console.error("Mermaid rendering error:", error);
+
+            architectureContainer.innerHTML = `
+              <div class="w-full text-sm">
+
+                <div class="bg-amber-50 border border-amber-200 text-amber-700 rounded-xl p-4">
+                  <p class="font-semibold">
+                    Could not render the architecture diagram.
+                  </p>
+
+                  <p class="mt-1">
+                    The Mermaid syntax generated by the AI could not be rendered.
+                  </p>
+                </div>
+
+                <details class="mt-4">
+                  <summary class="cursor-pointer text-sm font-semibold text-slate-600">
+                    Show Mermaid code
+                  </summary>
+
+                  <pre class="mt-3 bg-slate-900 text-slate-100 p-4 rounded-xl overflow-x-auto text-xs">${escapeHtml(
+                    generatedArchitecture,
+                  )}</pre>
+                </details>
+
+              </div>
+            `;
+          }
+        } else {
+          architectureContainer.innerHTML = `
+            <p class="text-sm text-slate-400">
+              No architecture diagram was generated.
+            </p>
+          `;
+        }
+
+        // --------------------------------------------------
+        // SHOW RESULTS
+        // --------------------------------------------------
+
+        results.classList.remove("hidden");
+
+        // Scroll to results
+        setTimeout(() => {
+          results.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 100);
+      }
+
+      // ==================================================
+      // COPY README
+      // ==================================================
+
+      document
+        .getElementById("copyReadmeBtn")
+        .addEventListener("click", async () => {
+          if (!generatedReadme) {
+            return;
+          }
+
+          try {
+            await copyToClipboard(generatedReadme);
+
+            showButtonSuccess("copyReadmeBtn", "Copied!");
+          } catch (error) {
+            console.error(error);
+
+            showError("Could not copy README to clipboard.");
+          }
+        });
+
+      // ==================================================
+      // DOWNLOAD README
+      // ==================================================
+
+      document
+        .getElementById("downloadReadmeBtn")
+        .addEventListener("click", () => {
+          if (!generatedReadme) {
+            return;
+          }
+
+          const repoName =
+            document.getElementById("repoName").innerText || "repository";
+
+          const safeName = repoName.replace(/[^a-z0-9-_]/gi, "-").toLowerCase();
+
+          const blob = new Blob([generatedReadme], {
+            type: "text/markdown;charset=utf-8",
+          });
+
+          const url = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+
+          link.href = url;
+
+          link.download = `${safeName}-README.md`;
+
+          document.body.appendChild(link);
+
+          link.click();
+
+          link.remove();
+
+          URL.revokeObjectURL(url);
+        });
+
+      // ==================================================
+      // COPY MERMAID
+      // ==================================================
+
+      document
+        .getElementById("copyArchitectureBtn")
+        .addEventListener("click", async () => {
+          if (!generatedArchitecture) {
+            return;
+          }
+
+          try {
+            await copyToClipboard(generatedArchitecture);
+
+            showButtonSuccess("copyArchitectureBtn", "Copied!");
+          } catch (error) {
+            console.error(error);
+
+            showError("Could not copy Mermaid code.");
+          }
+        });
+
+      // ==================================================
+      // COPY TO CLIPBOARD
+      // ==================================================
+
+      async function copyToClipboard(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+
+          return;
+        }
+
+        // Fallback
+        const textarea = document.createElement("textarea");
+
+        textarea.value = text;
+
+        textarea.style.position = "fixed";
+
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+
+        textarea.focus();
+
+        textarea.select();
+
+        document.execCommand("copy");
+
+        textarea.remove();
+      }
+
+      // ==================================================
+      // BUTTON SUCCESS STATE
+      // ==================================================
+
+      function showButtonSuccess(buttonId, message) {
+        const button = document.getElementById(buttonId);
+
+        const original = button.innerText;
+
+        button.innerText = message;
+
+        setTimeout(() => {
+          button.innerText = original;
+        }, 1500);
+      }
+
+      // ==================================================
+      // ERROR DISPLAY
+      // ==================================================
+
+      function showError(message) {
+        errorBox.innerText = message;
+
+        errorBox.classList.remove("hidden");
+
+        errorBox.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+
+      // ==================================================
+      // CLEAN MERMAID CODE
+      // ==================================================
+
+      function cleanMermaidCode(text) {
+        return text
+          .trim()
+          .replace(/^```mermaid\s*/i, "")
+          .replace(/^```\s*/i, "")
+          .replace(/\s*```$/i, "")
+          .trim();
+      }
+
+      // ==================================================
+      // ESCAPE HTML
+      // ==================================================
+
+      function escapeHtml(text) {
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+    </script>
+  </body>
+</html>
